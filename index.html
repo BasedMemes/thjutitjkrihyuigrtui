@@ -1,0 +1,116 @@
+<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@400;700&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/tv.css">
+  <title>tv time</title>
+</head>
+<body>
+  <aside>
+    <section>
+      <div class="section-content">
+        <p>free yourself from the tyranny of personalized recommendations by watching someone else's random picks. inspired by <a href="https://mydecadetv.com/">my decade tv</a>, <a href="https://neave.tv/">neave.tv</a> and every website that has or had embedded video inside a picture of a television set.</p>
+        <p>expect: music, comedy, weird internet shit, occasional knowledge</p>
+        <p>the tv image is from <a href="https://www.etsy.com/listing/502537267/vintage-pink-portable-tv-1980s-zenith?show_sold_out_detail=1&amp;ref=nla_listing_details">this etsy listing</a>.</p>
+        <a href="/" class="link-home">back home</a>
+      </div>
+    </section>
+    <section>
+      <div class="loading">
+        loading...
+      </div>
+      <div class="now-playing hide">
+        <p>now playing:</p>
+        <div class="title-container">
+          <a id="video-title" href="">loading...</a>
+        </div>
+        <p id="video-description"></p>
+        <button id="next" class="next-btn">
+          <div class="bg">
+            <p>this sucks,</p><p>change it!</p>
+          </div>
+        </button>
+      </div>
+    </section>
+  </aside>
+  <main>
+    <div class="tv" id="tv1">
+      <div id="player"></div>
+      <div class="error-msg hide">
+        <div class="content">
+          <p>this video is most likely unavailable for embedding.</p>
+          <p>you can click its title (on the left) to watch it on youtube, if it's still there (i try to keep things updated, though)</p>
+          <p>or try changing the channel</p>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script src="js/jquery-3.5.1.min.js"></script>
+  <script src="js/tv.js"></script>
+  <script>
+    let current = 0;
+    let playlist = videos;
+    /* YOUTUBE IFRAME API */
+    var tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    var firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    var player;
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('player', {
+        height: '390',
+        width: '640',
+        videoId: playlist[0].code,
+        events: {
+          'onStateChange': onPlayerStateChange,
+          'onError': onError
+        }
+      });
+    }
+
+    var done = false;
+    function onPlayerStateChange(event) {
+      if (event.data == YT.PlayerState.ENDED) {
+        changeIt();
+      }
+    }
+
+    function onError(event) {
+      $('#player').addClass('hide');
+      $('.error-msg').removeClass('hide');
+    }
+
+    $(document).ready(function() {
+      updateData();
+      $('.next-btn').on('click', changeIt);
+    });
+
+    function changeIt() {
+      if (playlist[current + 1]) {
+        current++;
+      }
+
+      else {
+        current = 0;
+      }
+      
+      $('.now-playing').addClass('hide');
+      $('.loading').removeClass('hide');
+      updateData();
+      $('#player').removeClass('hide');
+      $('.error-msg').addClass('hide');
+      player.loadVideoById(playlist[current].code);
+    }
+
+    function updateData() {
+      let title = playlist[current].title;
+      let description = playlist[current].description;
+      $('#video-title').text(title);
+      $('#video-description').text(description);
+      $('#video-title').attr('href', `https://youtube.com/watch?v=${playlist[current].code}`);
+      $('.now-playing').removeClass('hide');
+      $('.loading').addClass('hide');
+    }
+  </script>
+
+</body></html>
